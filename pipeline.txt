@@ -1,6 +1,6 @@
 1. Download wiki corpora: wget https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2
 2. Use Gensim to preprocess the corpora 
-    2.1. Preprocess: make_wikicorpus.sh
+    2.1. Preprocess documents and convert them into TF-IDF BOW vectors: make_wikicorpus.sh
         --> produces files: in data/
             - wiki_wordids.txt.bz2: mapping between words and their integer ids
             - wiki_bow.mm: bag-of-words (word counts) representation in Matrix Market format
