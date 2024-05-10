@@ -8,4 +8,4 @@
 
 source activate thesis
 
-python scripts/get_mm_head.py
+python scripts/get_mm_head_tail.py
