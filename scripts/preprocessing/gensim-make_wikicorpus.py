@@ -45,7 +45,7 @@ from gensim.models import TfidfModel
 # Wiki is first scanned for all distinct word types (~7M). The types that
 # appear in more than 10% of articles are removed and from the rest, the
 # DEFAULT_DICT_SIZE most frequent types are kept.
-DEFAULT_DICT_SIZE = 100000
+DEFAULT_DICT_SIZE = 10000
 
 
 if __name__ == '__main__':
