@@ -260,14 +260,25 @@ def save_distances(length, word_ids, words, cosine_distances_matrix, edit_distan
 
 
 def get_unigrams_bigrams(s):
-    """Return a set of unigrams and adjacent bigrams from a string."""
+    """
+    Returns a set of unigrams and adjacent bigrams from a string.
+    """
     unigrams = set(s)
     bigrams = set(s[i:i+2] for i in range(len(s) - 1))
     # Combine unigrams and bigrams
     return unigrams.union(bigrams)
 
 def jaccard_distance(s1, s2):
-    """Calculate the Jaccard distance between two strings using unigrams and adjacent bigrams."""
+    """
+    Calculates the Jaccard distance between two strings using unigrams and adjacent bigrams.
+    
+    Parameters:
+        s1 (str): The first input string.
+        s2 (str): The second input string.
+
+    Returns:
+        float: Jaccard distance between the two input strings.
+    """
     # Get the combined set of unigrams and bigrams for each string
     set1 = get_unigrams_bigrams(s1)
     set2 = get_unigrams_bigrams(s2)

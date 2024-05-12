@@ -30,7 +30,7 @@ removing tokens that appear in more than 10%% of all documents). Defaults to
 100,000.
 
 Example:
-    python -m gensim.scripts.make_wikicorpus ~/gensim/results/enwiki-latest-pages-articles.xml.bz2 ~/gensim/results/wiki
+  python -m gensim.scripts.make_wikicorpus ~/gensim/results/enwiki-latest-pages-articles.xml.bz2 ~/gensim/results/wiki
 """
 
 
@@ -57,20 +57,14 @@ if __name__ == '__main__':
     logger.info("running %s", ' '.join(sys.argv))
 
     # check and process input arguments
-    if len(sys.argv) < 5:
+    if len(sys.argv) < 3:
         print(globals()['__doc__'] % locals())
         sys.exit(1)
     inp, outp = sys.argv[1:3]
-    
+
     if not os.path.isdir(os.path.dirname(outp)):
         raise SystemExit("Error: The output directory does not exist. Create the directory and try again.")
 
-    # Moficiation to the original script to make the no_above and no_below parameters adjustable
-    no_above = float(sys.argv[3]) if len(sys.argv) > 3 else 0.1  # Default to 10%
-    no_below = sys.argv[4] if len(sys.argv) > 4 else 20 # Default to 20
-    
-    # Modification of the original script to create a corpus only with select words (monomorphemic nouns)
-    
     if len(sys.argv) > 3:
         keep_words = int(sys.argv[3])
     else:
@@ -85,14 +79,14 @@ if __name__ == '__main__':
         # ~4h on my macbook pro without lemmatization, 3.1m articles (august 2012)
         MmCorpus.serialize(outp + '_bow.mm', wiki, progress_cnt=10000, metadata=True)
         # with HashDictionary, the token->id mapping is only fully instantiated now, after `serialize`
-        dictionary.filter_extremes(no_below=no_below, no_above=no_above, keep_n=DEFAULT_DICT_SIZE)
+        dictionary.filter_extremes(no_below=20, no_above=0.1, keep_n=DEFAULT_DICT_SIZE)
         dictionary.save_as_text(outp + '_wordids.txt.bz2')
         wiki.save(outp + '_corpus.pkl.bz2')
         dictionary.allow_update = False
     else:
         wiki = WikiCorpus(inp)  # takes about 9h on a macbook pro, for 3.5m articles (june 2011)
         # only keep the most frequent words (out of total ~8.2m unique tokens)
-        wiki.dictionary.filter_extremes(no_below=no_below, no_above=no_above, keep_n=DEFAULT_DICT_SIZE)
+        wiki.dictionary.filter_extremes(no_below=20, no_above=0.1, keep_n=DEFAULT_DICT_SIZE)
         # save dictionary and bag-of-words (term-document frequency matrix)
         MmCorpus.serialize(outp + '_bow.mm', wiki, progress_cnt=10000, metadata=True)  # another ~9h
         wiki.dictionary.save_as_text(outp + '_wordids.txt.bz2')

@@ -8,9 +8,13 @@
 
 source activate thesis
 
-# Assumes a wiki corpus is downloaded from: wget https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2
+# 0. Download wki corpus
+# wget https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2 
 
 # # 1. --------------- Preprocess ---------------
+# echo "Started make_wikicorpus"
+# python -m gensim.scripts.make_wikicorpus data/enwiki-latest-pages-articles.xml.bz2 data/wiki 10000
+# echo "Done make_wikicorpus"
 # #     --> produces files (in data/): 
 # #         - wiki_wordids.txt.bz2: mapping between words and their integer ids
 # #         - wiki_bow.mm: bag-of-words (word counts) representation in Matrix Market format
@@ -19,9 +23,6 @@ source activate thesis
 # #         - wiki_tfidf.mm: TF-IDF representation in Matrix Market format
 # #         - wiki_tfidf.mm.index: index for wiki_tfidf.mm
 # #         - wiki.tfidf_model: TF-IDF model
-# echo "Started make_wikicorpus"
-# python -m gensim.scripts.make_wikicorpus data/enwiki-latest-pages-articles.xml.bz2 data/wiki 10000
-# echo "Done make_wikicorpus"
 
 
 # # 2. --------------- Inspect words ---------------
@@ -101,14 +102,14 @@ source activate thesis
 # echo "Done calculating and plotting correlations"
 
 # # 8. --------------- Random baseline ---------------
-VOCAB="data/vocab.pkl"
-LSA_MODEL="models/wiki_lsi_model.model"
-OUTPUT_FOLDER="results/random_baseline/cos_edit_dist_2.0"
+# VOCAB="data/vocab.pkl"
+# LSA_MODEL="models/wiki_lsi_model.model"
+# OUTPUT_FOLDER="results/random_baseline/cos_edit_dist_2.0"
 
-# Compute cosine and edit distance scores for words of the same length (between 3 and 7) in the vocabulary WITH SHUFFLED VECTORS
-echo "Started computing random baseline cosine and edit distances per word length"
-python scripts/distance_computations/random_baseline_dist_scores.py $VOCAB $LSA_MODEL $OUTPUT_FOLDER
-echo "Finished computing random baseline cosine and edit distances per word length. Find the results in $OUTPUT_FOLDER"
+# # Compute cosine and edit distance scores for words of the same length (between 3 and 7) in the vocabulary WITH SHUFFLED VECTORS
+# echo "Started computing random baseline cosine and edit distances per word length"
+# python scripts/distance_computations/random_baseline_dist_scores.py $VOCAB $LSA_MODEL $OUTPUT_FOLDER
+# echo "Finished computing random baseline cosine and edit distances per word length. Find the results in $OUTPUT_FOLDER"
 
 # # 9. --------------- Baseline Pearson correlations ---------------
 # # Directory containing the CSV files with distance scores
@@ -133,37 +134,37 @@ echo "Finished computing random baseline cosine and edit distances per word leng
 # echo "Done comparing correlations. Find results in $OUTPUT_FILE"
 
 # 11. --------------- New baseline ---------------
-VOCAB="data/vocab.pkl"
-LSA_MODEL="models/wiki_lsi_model.model"
-mkdir results/new_baseline
-mkdir results/new_baseline/cos_edit_dist
-OUTPUT_FOLDER="results/new_baseline/cos_edit_dist"
+# VOCAB="data/vocab.pkl"
+# LSA_MODEL="models/wiki_lsi_model.model"
+# mkdir results/new_baseline
+# mkdir results/new_baseline/cos_edit_dist
+# OUTPUT_FOLDER="results/new_baseline/cos_edit_dist"
 
-# Compute cosine and edit distance scores for words of the same length (between 3 and 7) in the vocabulary WITH SHUFFLED VECTORS
-echo "Started computing new baseline cosine and edit distances per word length"
-python scripts/new_baseline_dist_scores.py $VOCAB $LSA_MODEL $OUTPUT_FOLDER
-echo "Finished computing new baseline cosine and edit distances per word length. Find the results in $OUTPUT_FOLDER"
+# # Compute cosine and edit distance scores for words of the same length (between 3 and 7) in the vocabulary WITH SHUFFLED VECTORS
+# echo "Started computing new baseline cosine and edit distances per word length"
+# python scripts/new_baseline_dist_scores.py $VOCAB $LSA_MODEL $OUTPUT_FOLDER
+# echo "Finished computing new baseline cosine and edit distances per word length. Find the results in $OUTPUT_FOLDER"
 
 
 # 12. --------------- Baseline Pearson correlations ---------------
 # Directory containing the CSV files with distance scores
-SIM_SCORES_DIRECTORY="results/new_baseline/cos_edit_dist"
-CORR_SCORES_FILE="results/new_baseline/pearson_correlations.csv"
-# Create a directory to store correlation plots
-mkdir results/new_baseline/corr_plots
-PLOTS_DIRECTORY="results/new_baseline/corr_plots"
+# SIM_SCORES_DIRECTORY="results/new_baseline/cos_edit_dist"
+# CORR_SCORES_FILE="results/new_baseline/pearson_correlations.csv"
+# # Create a directory to store correlation plots
+# mkdir results/new_baseline/corr_plots
+# PLOTS_DIRECTORY="results/new_baseline/corr_plots"
 
 #  Compute Pearson correlations between cosine distance and edit distance scores for each word length
-echo "Started calculating Pearson correlations"
-python scripts/correlations_per_length.py $SIM_SCORES_DIRECTORY $CORR_SCORES_FILE $PLOTS_DIRECTORY
-echo "Done calculating and plotting correlations. Find them in $CORR_SCORES_FILE and $PLOTS_DIRECTORY respectively."
+# echo "Started calculating Pearson correlations"
+# python scripts/correlations_per_length.py $SIM_SCORES_DIRECTORY $CORR_SCORES_FILE $PLOTS_DIRECTORY
+# echo "Done calculating and plotting correlations. Find them in $CORR_SCORES_FILE and $PLOTS_DIRECTORY respectively."
 
 
 # # 13. --------------- Compare correlation ---------------
-REAL_CORR_SCORES="results/correlations/pearson_correlations.csv"
-BASELINE_CORR_SCORES="results/new_baseline/pearson_correlations.csv"
-OUTPUT_FILE="results/correlations/effect_size_new_baseline.csv"
+# REAL_CORR_SCORES="results/correlations/pearson_correlations.csv"
+# BASELINE_CORR_SCORES="results/new_baseline/pearson_correlations.csv"
+# OUTPUT_FILE="results/correlations/effect_size_new_baseline.csv"
 
-echo "Started comparing correlations"
-python scripts/fisher_z.py $REAL_CORR_SCORES $BASELINE_CORR_SCORES $OUTPUT_FILE
-echo "Done comparing correlations. Find results in $OUTPUT_FILE"
+# echo "Started comparing correlations"
+# python scripts/fisher_z.py $REAL_CORR_SCORES $BASELINE_CORR_SCORES $OUTPUT_FILE
+# echo "Done comparing correlations. Find results in $OUTPUT_FILE"
