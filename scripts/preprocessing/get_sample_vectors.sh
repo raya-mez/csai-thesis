@@ -12,4 +12,4 @@ VOCAB="data/vocab.pkl"
 LSA_MODEL="models/wiki_lsi_model.model"
 OUTPUT_FILE="data/sample_word_vects.npz"
 
-python scripts/sample_vectors.py $VOCAB $LSA_MODEL $OUTPUT_FILE
+python scripts/get_sample_vectors.py $VOCAB $LSA_MODEL $OUTPUT_FILE
