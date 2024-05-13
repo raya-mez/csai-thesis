@@ -9,21 +9,23 @@
 source activate thesis
 
 PREPROCESS_SCRIPTS="scripts/preprocessing"
-BOW_CORPUS_FILE="wiki_bow.mm" # "wiki_tfidf.mm"
+CORPUS_DIR="data"
+BOW_MODELS_DIR="models/bow"
+BOW_CORPUS_FILE="wiki_tfidf.mm"
+BOW_CORPUS="$BOW_MODELS_DIR/$BOW_CORPUS_FILE"
+WORD_IDS="$BOW_MODELS_DIR/wiki_wordids.txt.bz2"
 
 
 # 0. Download Wikipedia corpus
-CORPUS_DIR="data"
 # echo "Started downloading Wikipedia corpus"
 # wget -O $CORPUS_DIR/enwiki-latest-pages-articles.xml.bz2 https://dumps.wikimedia.org/enwiki/latest/enwiki-latest-pages-articles.xml.bz2 
 # echo "Downloaded Wikipedia corpus to $CORPUS_DIR"
 
 
-# # 1. --------------- Vectorize corpus (BOW & TF-IDF) ---------------
-BOW_MODELS_DIR="models/bow"
+# 1. --------------- Vectorize corpus (BOW & TF-IDF) ---------------
 mkdir -p $BOW_MODELS_DIR 
 echo "Started make_wikicorpus"
-python -m gensim.scripts.make_wikicorpus $CORPUS_DIR/enwiki-latest-pages-articles.xml.bz2 $BOW_MODELS_DIR/wiki 10000
+python $PREPROCESS_SCRIPTS/gensim-make_wikicorpus.py $CORPUS_DIR/enwiki-latest-pages-articles.xml.bz2 $BOW_MODELS_DIR/wiki 10000
 echo "Done make_wikicorpus. Find the files in $BOW_MODELS_DIR"
 # --> Produces files (in BOW_MODELS_DIR): 
 #     - wiki_wordids.txt.bz2: mapping between words and their integer ids
@@ -36,10 +38,8 @@ echo "Done make_wikicorpus. Find the files in $BOW_MODELS_DIR"
 
 
 # 2. --------------- Build LSA model ---------------
-WORD_IDS="$BOW_MODELS_DIR/wiki_wordids.txt.bz2"
-BOW_CORPUS="$BOW_MODELS_DIR/$BOW_CORPUS_FILE"
 LSA_MODEL_DIR="models/lsa"
-mkdir $LSA_MODEL_DIR
+mkdir -p $LSA_MODEL_DIR
 LSA_MODEL="$LSA_MODEL_DIR/wiki_lsi_model.model"
 
 echo "Started building LSA model"
@@ -48,12 +48,13 @@ echo "Created LSA model, find it in $LSA_MODEL"
 
 
 # 3. --------------- Build vocabulary ---------------
-WORD_IDS="$BOW_MODELS_DIR/wiki_wordids.txt.bz2"
-BOW_CORPUS="$BOW_MODELS_DIR/$BOW_CORPUS_FILE"
 VOCAB_FILE="data/vocab.pkl"
 SAMPLE_WORDS_FILE="data/200_words.txt" 
+CELEX="data/celex_dict.pkl"
+CONTROLLED_VOCAB_FILE="data/vocab_controlled.pkl"
+CONTROLLED_SAMPLE_WORDS="data/200_words_controlled.txt" 
 
 # Build vocabulary with the 5000 most frequent word types in the corpus and select a sample of 200 of them
 echo "Started creating vocabulary"
-python $PREPROCESS_SCRIPTS/build_vocab.py $WORD_IDS $BOW_CORPUS $VOCAB_FILE $SAMPLE_WORDS_FILE
-echo "Finished creating vocabulary. Find it in $VOCAB. Find sample of words to inspect in $SAMPLE_WORDS_FILE."
+python $PREPROCESS_SCRIPTS/build_vocab.py $WORD_IDS $BOW_CORPUS $VOCAB_FILE $SAMPLE_WORDS_FILE $CELEX $CONTROLLED_VOCAB_FILE $CONTROLLED_SAMPLE_WORDS
+echo "Finished creating vocabularies"
