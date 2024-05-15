@@ -3,6 +3,7 @@ import sys
 import csv
 import logging
 import numpy as np
+from gensim.models import LsiModel
 
 import config
 import distance_funcs
@@ -19,11 +20,12 @@ configs = config.Experiment()
 # Get file paths
 vocab_path = configs.vocab_path
 lsa_model_path = configs.lsa_model_path
-# output_folder = configs.dist_scores_dir
+words_ids_by_length_path = configs.ids_by_wordlength_path
+output_folder = configs.dist_scores_dir
 output_file_path = configs.dist_scores_file
 
 # Create output directory if it does not exist
-# os.makedirs(output_folder, exist_ok=True)
+os.makedirs(output_folder, exist_ok=True)
 
 # Define rescaling options for cosine distance
 cos_dist_types = configs.cos_dist_types
@@ -32,16 +34,21 @@ form_dist_types = configs.form_dist_types
 # --------------- Loading data ---------------
 # Load the vocabulary (dictionary with id-word pairs for the 5000 most frequent words in the corpus)
 logging.info("Loading vocabulary...")
-vocab = configs.load_vocabulary(vocab_path)
+vocab = configs.load_pkl(vocab_path)
 
-# Create a dictionary storing words by length from 3 to 7 characters
+# Load the dictionary storing lists of word IDs keyed by word length (from 3 to 7 characters)
+# {3:[id1, id2,...], 4:[id3, id4,...], ...}
 logging.info(f"Grouping word IDs by word length...")
-words_ids_by_length = configs.word_ids_by_word_length(vocab)
+# words_ids_by_length = configs.group_word_ids_by_word_length(vocab)
+words_ids_by_length = configs.load_pkl(words_ids_by_length_path)
+logging.info(f"Loaded {len(words_ids_by_length)} ID-word mappings")
 
 # Load the trained LSA model
-logging.info("Loading LSA embeddings of words in the vocabulary...")
-embeddings_dict = configs.get_vocabulary_embeddings_dict(vocab, lsa_model_path)
-
+logging.info(f"Loading LSA model...")
+lsa_model = LsiModel.load(lsa_model_path)
+# logging.info("Loading LSA embeddings of words in the vocabulary...")
+# embeddings_dict = configs.get_vocabulary_embeddings_dict(vocab, lsa_model_path)
+# logging.info(f"Loaded {len(embeddings_dict)} embeddings")
 
 # --------------- Computing distances ---------------
 # Write the results to a file for each word pair
@@ -52,9 +59,9 @@ with open(output_file_path, "w", newline="") as csvfile:
     
     # Iterate over each word combination
     for length, word_ids in words_ids_by_length.items():
-        # Fetch LSA vectors for the words in the vocabulary of the current length
+        # Fetch LSA vectors and the words in the vocabulary of the current length
         logging.info(f"Processing word length {length} with {len(word_ids)} IDs.")
-        vects = np.array([embeddings_dict[id] for id in word_ids])
+        vects = np.array([lsa_model.projection.u[id] for id in word_ids])
         words = [vocab[id] for id in word_ids]
         logging.info(f"Retrieved array of vectors with shape {vects.shape} and {len(words)} words.")
         
@@ -73,22 +80,18 @@ with open(output_file_path, "w", newline="") as csvfile:
                 
                 # Compute and store cosine distances for this word pair
                 for cos_dist_type in cos_dist_types:
-                    logging.info(f"Computing cosine distances {cos_dist_type}...")
-                    cosine_distances = distance_funcs.cosine_distances_matrix(vects, cos_dist_type)
-                    logging.info(f"Obtained matrix of shape {cosine_distances.shape}. Writing the results...")
-                    row_data[f"cos_dist_{cos_dist_type}"] = cosine_distances[i, j]
+                    cos_dist = distance_funcs.cosine_distance(vects[i], vects[j])
+                    row_data[f"cos_dist_{cos_dist_type}"] = cos_dist
                     
                 # Compute and store form distances for this word pair
                 for form_dist_type in form_dist_types:
-                    logging.info(f"Computing form distances {cos_dist_type}...")
-                    form_distances = distance_funcs.form_distances_matrix(words, form_dist_type)
-                    logging.info(f"Obtained matrix of shape {cosine_distances.shape}. Writing the results...")
-                    row_data[f"form_dist_{form_dist_type}"] = form_distances[i, j]
+                    form_dist = distance_funcs.form_distance(words[i], words[j])
+                    row_data[f"form_dist_{form_dist_type}"] = form_dist
                     
                 # Write the row to the CSV file
                 writer.writerow(row_data)
 
-logging.info(f"All distances computed and saved to {output_file_path}")
+logging.info(f"All distances successfuly computed and saved to {output_file_path}")
 
 
 # with open(output_file_path, 'a', newline='') as f:

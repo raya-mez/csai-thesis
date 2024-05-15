@@ -10,7 +10,6 @@ class Experiment():
         self.baselines_abrev = ['rd', 'bin']
         self.word_lengths = [3,4,5,6,7]
         
-        
         # Define paths
         # Input files
         # Vocabularies
@@ -39,17 +38,18 @@ class Experiment():
         
         # z-score of real correlations compared to baseline
         self.zscores_file = os.path.join('results', 'zscores.csv')
+
     
-    def load_vocabulary(self, vocab_path):
+    def load_pkl(self, pkl_file_path):
         """
         Load the pickled vocabulary from the specified file path and returns it. 
         The vocabulary is a dictionary containing words as values and their corresponding word IDs as keys.
         """
-        with open(vocab_path, 'rb') as f:
-            vocabulary = pkl.load(f)
-        return vocabulary
+        with open(pkl_file_path, 'rb') as f:
+            object = pkl.load(f)
+        return object
     
-    def word_ids_by_word_length(self, vocab):
+    def group_word_ids_by_word_length(self, vocab):
         """Groups word IDs in the vocabulary by the length of their correponsing words. 
 
         Args:
@@ -64,7 +64,7 @@ class Experiment():
             words_ids_by_length[length] = ids
         return words_ids_by_length
     
-    def get_vocabulary_embeddings_dict(self, vocab): 
+    def get_vocabulary_embeddings_dict(self, vocab, lsa_model_path): 
         """
         Extract the embeddings of the words in the vocabulary.
         
@@ -81,10 +81,10 @@ class Experiment():
         """
         
         # Load the LSI model from the specified path
-        lsa_model = LsiModel.load(self.lsa_model_path)    
+        lsa_model = LsiModel.load(lsa_model_path)    
         
         # Create a dictionary mapping words to their embeddings (the left singular vectors from the LSI model)
-        embeddings_dict = {id:lsa_model.projection.u[id] for id in vocab.keys()}
+        embeddings_dict = {id:lsa_model.projection.u[id] for id in vocab}
         
         # Return the dictionary of words and their embeddings
         return embeddings_dict
@@ -101,16 +101,18 @@ class Globals:
         self._word_lengths = [3, 4, 5, 6, 7]
         self._cos_dist_types = ['raw', 'norm', 'abs', 'ang']
         self._form_dist_types = ['edit', 'edit_norm', 'jaccard']
-        
-        self._rescaling_types_abrev = ['none', 'abs', 'norm', 'ang']
-        self._rescaling_types_args = [None, 'abs_cos_sim', 'norm_cos_sim', 'ang_dist']
-        self._rescaling_types_dict = {
-            'none': None,
-            'abs': 'abs_cos_sim',
-            'norm': 'norm_cos_sim',
-            'ang': 'angular_dist'}
         self._baseline_types_abrev = ['rd', 'bin']
-        self._baseline_types = ['Random Baseline', 'Binned Baseline']
+        self._baseline_types = ['random', 'binned']
+        
+        # self._rescaling_types_abrev = ['none', 'abs', 'norm', 'ang']
+        # self._rescaling_types_args = [None, 'abs_cos_sim', 'norm_cos_sim', 'ang_dist']
+        # self._rescaling_types_dict = {
+        #     'none': None,
+        #     'abs': 'abs_cos_sim',
+        #     'norm': 'norm_cos_sim',
+        #     'ang': 'angular_dist'}
+        # self._baseline_types_abrev = ['rd', 'bin']
+        # self._baseline_types = ['Random Baseline', 'Binned Baseline']
 
     # Define properties to make attributes read-only
     @property
@@ -124,18 +126,6 @@ class Globals:
     @property
     def form_dist_types(self):
         return self._form_dist_types
-    
-    @property
-    def rescaling_types_abrev(self):
-        return self._rescaling_types_abrev
-
-    @property
-    def rescaling_types_args(self):
-        return self._rescaling_types_args
-
-    @property
-    def rescaling_types_dict(self):
-        return self._rescaling_types_dict
 
     @property
     def baseline_types_abrev(self):
@@ -144,5 +134,17 @@ class Globals:
     @property
     def baseline_types(self):
         return self._baseline_types
+    
+    # @property
+    # def rescaling_types_abrev(self):
+    #     return self._rescaling_types_abrev
+
+    # @property
+    # def rescaling_types_args(self):
+    #     return self._rescaling_types_args
+
+    # @property
+    # def rescaling_types_dict(self):
+    #     return self._rescaling_types_dict
     
     
