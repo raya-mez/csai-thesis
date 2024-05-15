@@ -162,7 +162,7 @@ for rescaling, rescaling_string in rescaling_options.items():
             shuffled_vectors = shuffle_bins(bins)
             
             # Compute distances
-            cos_distance_matrix = distance_funcs.cosine_distances_matrix(shuffled_vectors, rescaling=rescaling_string)
+            cos_distance_matrix = distance_funcs.cosine_distances_matrix(shuffled_vectors, cos_dist_type=rescaling_string)
             edit_distance_matrix = distance_funcs.edit_distances_matrix(words)
             
             # Extract unique pairwise scores

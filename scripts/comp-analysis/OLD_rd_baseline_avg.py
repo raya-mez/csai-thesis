@@ -93,7 +93,7 @@ for wordlength, ids in words_ids_by_length.items():
                     
         # Compute cosine distances
         # NOTE: Uses raw cosine distances
-        cos_distance_matrix = distance_funcs.cosine_distances_matrix(shuffled_vectors, rescaling=None)
+        cos_distance_matrix = distance_funcs.cosine_distances_matrix(shuffled_vectors, cos_dist_type=None)
         # Compute edit distances
         edit_distance_matrix = distance_funcs.edit_distances_matrix(words)
         

@@ -10,6 +10,6 @@ source activate thesis
 
 cd /home/u286379/csai_thesis/
 
-echo "Started computing cosine and edit distances per word length with 4 rescaling methods"
-python scripts/distances_1/compute_distances.py 
-echo "Finished computing cosine and edit distances per word length with 4 rescaling methods"
+echo "Started computing cosine and form distances per word length"
+python scripts/computations/compute_distances.py 
+echo "Finished computing cosine and form distances per word length"

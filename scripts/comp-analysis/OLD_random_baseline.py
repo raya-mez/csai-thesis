@@ -59,7 +59,7 @@ for length, word_ids in words_ids_by_length.items():
     
     # Compute cosine similarities
     logging.info(f"Computing random baseline cosine distances for {len(word_ids)} words of length {length}...")
-    cosine_distances = distance_funcs.cosine_distances_matrix(vects, rescaling=rescaling)
+    cosine_distances = distance_funcs.cosine_distances_matrix(vects, cos_dist_type=rescaling)
     
     words = [word for id, word in vocab.items() if id in word_ids]
     edit_distances = distance_funcs.edit_distances_matrix(words)

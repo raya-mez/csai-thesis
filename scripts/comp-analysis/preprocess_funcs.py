@@ -103,7 +103,7 @@ def word_ids_by_word_length(vocab):
     return words_ids_by_length
 
 
-def get_vocabulary_embeddings_dict(vocab, lsa_model=lsa_model_path): # vocab_path
+def get_vocabulary_embeddings_dict(vocab, lsa_model=lsa_model_path): 
     """
     Extract the embeddings of the words in the vocabulary.
     

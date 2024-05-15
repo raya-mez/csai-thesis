@@ -2,7 +2,10 @@ import csv
 import logging
 import numpy as np
 from editdistance import eval as edit_distance
-import onc
+
+import config
+
+configs = config.Globals()
 
 # ---------- Cosine metrics ----------
 
@@ -62,7 +65,7 @@ def is_symmetric(matrix):
     return np.array_equal(matrix, matrix.T)
 
 
-def cosine_distances_matrix(word_vectors_array, rescaling):
+def cosine_distances_matrix(word_vectors_array, cos_dist_type):
     """
     Calculates a matrix of cosine distances between all pairs of word vectors in the input array.
 
@@ -79,20 +82,20 @@ def cosine_distances_matrix(word_vectors_array, rescaling):
     Returns:
         np.ndarray: A 2D numpy array representing the cosine distances between each pair of word vectors.
     """
-    rescaling_options = [None, 'abs_cos_sim', 'norm_cos_sim', 'angular_dist']
+    cos_dist_types = configs.cos_dist_types
     # Check the rescaling argument and raise ValueError for invalid inputs
-    if rescaling not in rescaling_options:
-        raise ValueError(f"Invalid value for 'rescaling': {rescaling}. Supported values are {rescaling_options}.")
+    if cos_dist_type not in cos_dist_types:
+        raise ValueError(f"Invalid value for 'rescaling': {cos_dist_type}. Supported values are {cos_dist_types}.")
     
     # Compute matrix of cosine similarities
     cos_sim_matrix = cosine_similarities_matrix(word_vectors_array)
 
-    if rescaling == 'abs_cos_sim':
+    if cos_dist_type == 'abs':
         # Take the absolute value of the cosine similarities
         cos_sim_matrix_abs = np.abs(cos_sim_matrix)
         cosine_distances = 1 - cos_sim_matrix_abs
     
-    elif rescaling == 'norm_cos_sim':
+    elif cos_dist_type == 'norm':
         # Normalize cosine similarities and compute cosine distances
         minx, maxx = -1, 1
         cos_sim_matrix_norm = (cos_sim_matrix - minx) / (maxx - minx)
@@ -100,7 +103,7 @@ def cosine_distances_matrix(word_vectors_array, rescaling):
         cosine_distances = 1 - cos_sim_matrix_norm
         
     # Rescale the similarity scores as specified by the `rescaling` argument
-    elif rescaling == 'angular_dist':
+    elif cos_dist_type == 'ang':
         # Calculate the angular distance - a formal distance metric with values ranging from 0 to 1
         # (https://en.wikipedia.org/wiki/Cosine_similarity#Angular_distance_and_similarity) 
         angular_distances = np.arccos(cos_sim_matrix) / np.pi
@@ -311,3 +314,13 @@ def jaccard_distances_matrix(word_list):
             distances_matrix[j, i] = distance
     
     return distances_matrix
+
+def form_distances_matrix(word_list, form_dist_type):
+    if form_dist_type not in configs.form_dist_types:
+        raise ValueError(f"{form_dist_type} is not a valid argument. Possible values are: {configs.form_dist_types}")
+    elif form_dist_type == 'edit':
+        return edit_distances_matrix(word_list, norm=False)
+    elif form_dist_type == 'edit_norm':
+        return edit_distances_matrix(word_list, norm=True)
+    elif form_dist_type == 'jaccard':
+        return jaccard_distances_matrix(word_list)
