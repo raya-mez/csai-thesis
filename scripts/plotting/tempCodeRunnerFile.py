@@ -1,1 +1,0 @@
-    axes = axes.flatten()
